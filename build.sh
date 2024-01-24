@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYLON_PATH=/opt/pylon5
+PYLON_PATH=/opt/pylon
 
 # HW libs available: /opt/pylon5/lib64/libpylon_TL_{bcon,camemu,gige,usb}.so
 libs=(
