@@ -1,3 +1,9 @@
+
+# export LD_LIBRARY_PATH=`/opt/pylon/lib/`
+# ../device $(basename $(pwd))  
+# # nohup ../device $(basename $(pwd)) >device.log 2>&1 &
+
+
 #!/bin/bash
 
 PYLON_PATH=/opt/pylon
@@ -19,6 +25,6 @@ exec env \
     PYLON_PATH="${PYLON_PATH}" \
     CGO_CPPFLAGS="${CGO_CPPFLAGS}" \
     CGO_LDFLAGS="${CGO_LDFLAGS}" \
-    go build  -o device ./device.go
+  ../device
 
 
