@@ -1,4 +1,4 @@
-#include <pylon/PylonIncludes.h>
+
 
 #include <iostream>
 extern "C"
@@ -6,28 +6,34 @@ extern "C"
 #include "camera.h"
 }
 // Namespace for using pylon objects.
-using namespace Pylon;
+// using namespace Pylon;
 
 void CPylonInitialize()
 {
     PylonInitialize();
 }
 
-int CEnumerateDevices()
+GENAPIC_RESULT CEnumerateDevices()
 {
-    try
+    size_t num;
+    GENAPIC_RESULT res;
+    res = PylonEnumerateDevices(&num);
+    if (GENAPI_E_OK != res)
     {
-        DeviceInfoList_t devices;
-        CTlFactory &tlFactory = CTlFactory::GetInstance();
-        tlFactory.EnumerateDevices(devices);
-        return devices.size();
+        goto err;
     }
-    catch (const GenericException e)
+    for (int i = 0; i < num; ++i)
     {
-        std::cout << "Enumberate devices error: " << e.GetDescription() << std::endl;
-        return 0;
+        res = PylonCreateDeviceByIndex(i, &hdevs[i]);
+        if (GENAPI_E_OK != res)
+        {
+            goto err;
+        }
     }
-    return 0;
+    return GENAPI_E_OK;
+
+err:
+    return res;
 }
 void CPylonGetDeviceInfo()
 {

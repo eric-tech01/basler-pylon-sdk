@@ -5,6 +5,11 @@ package gopylon
 */
 import "C"
 
+type Camera struct {
+
+}
+
+
 func PylonInitialize()  {
 	C.CPylonInitialize()
 }
@@ -13,7 +18,6 @@ func PylonInitialize()  {
 func EnumerateDevices() int {
 	num := C.CEnumerateDevices()
 	return int(num)
-	// fmt.Println(C.GoString(cDevices.size()))
 }
 func PylonGetDeviceInfo()  {
 	// var deviceInfo C.CDeviceInfo
