@@ -1,4 +1,4 @@
-module github.com/eric-tech01/pylonSdk
+module github.com/eric-tech01/gopylon
 
 go 1.20
 

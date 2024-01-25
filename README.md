@@ -1,4 +1,4 @@
-# basler-pylon-sdk
+# go-pylon
 
 A minimal set of calls on top of the Basler Pylon7 C++ SDK for linux.
 
