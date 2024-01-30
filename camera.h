@@ -17,6 +17,7 @@ extern "C"
     GENAPIC_RESULT CEnumerateDevices();
     void CPylonGetDeviceInfo();
     void CPylonTerminate();
+    int CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev, char *prop);
 // void CPylonDeviceClose();
 // void CPylonDeviceOpen();
 #ifdef __cplusplus

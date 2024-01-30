@@ -47,6 +47,10 @@ void CPylonTerminate()
     PylonTerminate();
 }
 
+int CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev, char *prop);
+{
+}
+
 // void CPylonDeviceClose()
 // {
 //     PylonDeviceClose();
