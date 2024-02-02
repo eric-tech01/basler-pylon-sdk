@@ -10,15 +10,16 @@ extern "C"
 #endif
 
 #define NUM_DEVICES 1
-
-    PYLON_DEVICE_HANDLE hdevs[NUM_DEVICES];
-
     void CPylonInitialize();
-    GENAPIC_RESULT CEnumerateDevices();
-    void CPylonGetDeviceInfo();
+    GENAPIC_RESULT BindCamera(char *serialNo, PYLON_DEVICE_HANDLE *hdev);
+    // GENAPIC_RESULT CEnumerateDevices(size_t *num);
+    GENAPIC_RESULT CPylonGetDeviceInfo(PylonDeviceInfo_t *deviceInfo);
     void CPylonTerminate();
-// void CPylonDeviceClose();
-// void CPylonDeviceOpen();
+    int CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev, char *prop);
+
+    void NtitBaslerPrintName(PYLON_DEVICE_HANDLE hdev);
+    GENAPIC_RESULT CPylonDeviceClose(PYLON_DEVICE_HANDLE hdev);
+    GENAPIC_RESULT CPylonDeviceOpen(PYLON_DEVICE_HANDLE hdev, int mode);
 #ifdef __cplusplus
 }
 #endif
