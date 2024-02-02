@@ -20,6 +20,8 @@ extern "C"
     void NtitBaslerPrintName(PYLON_DEVICE_HANDLE hdev);
     GENAPIC_RESULT CPylonDeviceClose(PYLON_DEVICE_HANDLE hdev);
     GENAPIC_RESULT CPylonDeviceOpen(PYLON_DEVICE_HANDLE hdev, int mode);
+// void CPylonDeviceClose();
+// void CPylonDeviceOpen();
 #ifdef __cplusplus
 }
 #endif

@@ -36,6 +36,19 @@ func (camera *Camera) FetchCamera() error {
 // }
 
 func (camera *Camera) getDeviceInfo() {
+	hdev C.PYLON_DEVICE_HANDLE
+}
+
+func PylonInitialize() {
+	C.CPylonInitialize()
+}
+
+//把DeviceInfoList_t 转成自定义的类型
+func EnumerateDevices() int {
+	num := C.CEnumerateDevices()
+	return int(num)
+}
+func (Camera) PylonGetDeviceInfo() {
 	// var deviceInfo C.CDeviceInfo
 	//获取deviceInfo
 	var info C.PylonDeviceInfo_t
@@ -47,6 +60,7 @@ func (camera *Camera) getDeviceInfo() {
 	fmt.Printf("%v \n", res)
 
 }
+<<<<<<< HEAD
 
 func (camera Camera) PylonDeviceFeatureIsReadable(prop string) {
 	C.CPylonDeviceFeatureIsReadable(camera.hdev, C.CString(prop))
@@ -62,6 +76,19 @@ func (camera Camera) Close() {
 	C.CPylonDeviceClose(camera.hdev)
 }
 
+=======
+func PylonTerminate() {
+	C.CPylonTerminate()
+}
+
+func (camera Camera) PylonDeviceFeatureIsReadable(prop string) {
+	C.CPylonDeviceFeatureIsReadable(camera.hdev, C.CString(prop))
+}
+
+// func PylonDeviceClose()  {
+// 	C.CPylonDeviceClose()
+// }
+>>>>>>> 8d98bf788863b616bf389f3b6e06512d308d95b8
 // func PylonDeviceOpen()  {
 // 	C.CPylonDeviceOpen()
 // }
