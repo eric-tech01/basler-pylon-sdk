@@ -1,14 +1,17 @@
 package main
 
 import (
-	gopylon "github.com/eric-tech01/gopylon"
 	"fmt"
+
+	gopylon "github.com/eric-tech01/gopylon"
 )
 
-func main()  {
+func main() {
 	fmt.Println("---===")
 	gopylon.PylonInitialize()
-	num := gopylon.EnumerateDevices()
+
+	camera := &gopylon.Camera{SerialNo: "ML230-40C"}
+	num := camera.FetchCamera()
 	fmt.Println("device nums: ", num)
 	gopylon.PylonTerminate()
 }
