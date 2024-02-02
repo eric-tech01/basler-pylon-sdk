@@ -89,14 +89,6 @@ GENAPIC_RESULT CPylonDeviceOpen(PYLON_DEVICE_HANDLE hdev, int mode)
 {
     return PylonDeviceOpen(hdev, mode);
 }
-int CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev, char *prop);
-{
-}
-
-// void CPylonDeviceClose()
-// {
-//     PylonDeviceClose();
-// }
 
 void NtitBaslerPrintName(PYLON_DEVICE_HANDLE hdev)
 {
