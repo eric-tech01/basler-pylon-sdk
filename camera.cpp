@@ -4,8 +4,6 @@ extern "C"
 {
 #include "camera.h"
 }
-// Namespace for using pylon objects.
-// using namespace Pylon;
 
 void CPylonInitialize()
 {
@@ -34,50 +32,11 @@ GENAPIC_RESULT BindCamera(char *serialNo, PYLON_DEVICE_HANDLE *hdev)
 err:
     return res;
 }
-// GENAPIC_RESULT CEnumerateDevices(size_t *num)
-// {
-//     // size_t num;
-//     GENAPIC_RESULT res;
-//     res = PylonEnumerateDevices(num);
-//     printf("device num isx: %ld \n", *num);
-//     printf("res is %ld \n", res);
-//     if (GENAPI_E_OK != res)
-//     {
-//         goto err;
-//     }
 
-//     printf("----start \n");
-//     res = PylonCreateDeviceByIndex(0, &hdev);
-//     if (GENAPI_E_OK != res)
-//     {
-//         printf("----ssoooo \n");
-//         goto err;
-//     }
-//     res = PylonDeviceOpen(hdev, PYLONC_ACCESS_MODE_CONTROL | PYLONC_ACCESS_MODE_STREAM | PYLONC_ACCESS_MODE_EVENT);
 
-//     NtitBaslerPrintName(0);
-
-//     // for (int i = 0; i < ; ++i)
-//     // {
-
-//     // }
-//     return GENAPI_E_OK;
-
-// err:
-//     return res;
-// }
-GENAPIC_RESULT CPylonGetDeviceInfo(PylonDeviceInfo_t *deviceInfo)
+GENAPIC_RESULT CPylonGetDeviceInfo(size_t index, PylonDeviceInfo_t* pDi)
 {
-    return PylonGetDeviceInfo(0, deviceInfo);
-}
-GENAPIC_RESULT CPylonDeviceClose(PYLON_DEVICE_HANDLE hdev)
-{
-    return PylonDeviceClose(hdev);
-}
-
-void CPylonDestroyDevice(PYLON_DEVICE_HANDLE hdev)
-{
-    PylonDestroyDevice(hdev);
+    return PylonGetDeviceInfo(index, pDi);
 }
 
 void CPylonTerminate()
@@ -90,33 +49,89 @@ GENAPIC_RESULT CPylonDeviceOpen(PYLON_DEVICE_HANDLE hdev, int mode)
     return PylonDeviceOpen(hdev, mode);
 }
 
-void NtitBaslerPrintName(PYLON_DEVICE_HANDLE hdev)
+
+GENAPIC_RESULT CPylonDeviceClose(PYLON_DEVICE_HANDLE hdev)
 {
-    char buf[256];
-    GENAPIC_RESULT res;
-    unsigned char is_readable;
-    // PYLON_DEVICE_HANDLE   hdev;
-
-    if (PYLONC_INVALID_HANDLE == hdev)
-    {
-        printf("error \n");
-        return;
-    }
-
-    size_t siz = sizeof(buf);
-
-    is_readable = PylonDeviceFeatureIsReadable(hdev, "DeviceModelName");
-    printf("is_readable %u \n", is_readable);
-    if (is_readable)
-    {
-        res = PylonDeviceFeatureToString(hdev, "DeviceModelName", buf, &siz);
-        printf("Using camera %s.\n", buf);
-    }
-
-    printf("---rrreturn \n");
-    return;
+    return PylonDeviceClose(hdev);
 }
-int CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev, char *prop)
+
+GENAPIC_RESULT CPylonDestroyDevice(PYLON_DEVICE_HANDLE hdev)
 {
-    return 0;
+    return PylonDestroyDevice(hdev);
+}
+
+
+
+_Bool CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev,const char *prop)
+{
+    bool isAvail;
+    isAvail = PylonDeviceFeatureIsAvailable(hdev, prop);
+    
+    return true;
+}
+
+
+// GENAPIC_RESULT CPylonDeviceGetNumStreamGrabberChannels(PYLON_DEVICE_HANDLE hdev,size_t* pNumChannels )
+// {
+//     return PylonDeviceGetNumStreamGrabberChannels(hdev, pNumChannels);
+// }
+
+GENAPIC_RESULT CPylonDeviceGetStreamGrabber( PYLON_DEVICE_HANDLE hDev, size_t index, PYLON_STREAMGRABBER_HANDLE* phStg )
+{
+    return PylonDeviceGetStreamGrabber(hDev, index, phStg);
+}
+
+// GENAPIC_RESULT CPylonStreamGrabberOpen(PYLON_STREAMGRABBER_HANDLE hStg)
+// {
+//     return PylonStreamGrabberOpen(hStg);
+// }
+
+// GENAPIC_RESULT CPylonStreamGrabberGetWaitObject( PYLON_STREAMGRABBER_HANDLE hStg, PYLON_WAITOBJECT_HANDLE* phWobj )
+// {
+//     return PylonStreamGrabberGetWaitObject(hStg, phWobj);
+// }
+GENAPIC_RESULT CPylonDeviceGetIntegerFeatureInt32( PYLON_DEVICE_HANDLE dev, const char* name, int32_t* value )
+{
+    return PylonDeviceGetIntegerFeatureInt32(dev, name, value);
+}
+
+// GENAPIC_RESULT CPylonStreamGrabberSetMaxNumBuffer( PYLON_STREAMGRABBER_HANDLE hStg, size_t numBuffers )
+// {
+//     return PylonStreamGrabberSetMaxNumBuffer(hStg, numBuffers);
+// }
+// GENAPIC_RESULT CPylonStreamGrabberSetMaxBufferSize( PYLON_STREAMGRABBER_HANDLE hStg, size_t maxSize )
+// {
+//     return PylonStreamGrabberSetMaxBufferSize(hStg, maxSize);
+// }
+
+// GENAPIC_RESULT CPylonStreamGrabberPrepareGrab( PYLON_STREAMGRABBER_HANDLE hStg )
+// {
+//     return PylonStreamGrabberPrepareGrab(hStg);
+// }
+
+// GENAPIC_RESULT CPylonStreamGrabberRegisterBuffer( PYLON_STREAMGRABBER_HANDLE hStg, void* pBuffer, size_t BufLen, PYLON_STREAMBUFFER_HANDLE* phBuf )
+// {
+//     return PylonStreamGrabberRegisterBuffer(hStg, pBuffer, BufLen, phBuf);
+// }
+// GENAPIC_RESULT CPylonStreamGrabberQueueBuffer( PYLON_STREAMGRABBER_HANDLE hStg, PYLON_STREAMBUFFER_HANDLE hBuf, const void* pContext )
+// {
+//     return PylonStreamGrabberQueueBuffer(hStg, hBuf, pContext);
+// }
+
+
+void CPrintError(GENAPIC_RESULT errc) {
+    char* errMsg;
+    size_t length;
+	GenApiGetLastErrorMessage(NULL, &length);
+    errMsg = (char*) malloc( length );
+
+	GenApiGetLastErrorMessage(errMsg, &length);
+    
+    fprintf( stderr, "%s (%#08x).\n", errMsg, (unsigned int) errc );
+    free( errMsg );
+}
+
+GENAPIC_RESULT CPylonDeviceExecuteCommandFeature( PYLON_DEVICE_HANDLE hDev, const char* pName )
+{
+    return C.PylonDeviceExecuteCommandFeature(hDev, pName);
 }
