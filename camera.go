@@ -62,7 +62,7 @@ func (camera Camera) Open() error {
 		camera.Close()
 	}
 	res := C.CPylonDeviceOpen(camera.HDev, C.PYLONC_ACCESS_MODE_CONTROL|C.PYLONC_ACCESS_MODE_STREAM)
-	if C.GENAPI_E_OK == res {
+	if C.GENAPI_E_OK != res {
 		return fmt.Errorf("DeviceOpen failed: %d", res)
 	}
 
@@ -114,7 +114,7 @@ func (camera Camera) GetIntegerFeatureInt32(name string, retValue *int32) error 
 }
 
 func (camera Camera) ExecuteCommandFeature(cmd string) error {
-	res := C.CPylonDeviceExecuteCommandFeature(camera.HDev, cmd)
+	res := C.CPylonDeviceExecuteCommandFeature(camera.HDev, C.CString(cmd))
 	if C.GENAPI_E_OK != res {
 		return fmt.Errorf("CPylonDeviceExecuteCommandFeature failed: %d", res)
 	}

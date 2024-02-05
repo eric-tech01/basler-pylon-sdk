@@ -133,5 +133,6 @@ void CPrintError(GENAPIC_RESULT errc) {
 
 GENAPIC_RESULT CPylonDeviceExecuteCommandFeature( PYLON_DEVICE_HANDLE hDev, const char* pName )
 {
-    return C.PylonDeviceExecuteCommandFeature(hDev, pName);
+    return PylonDeviceExecuteCommandFeature(hDev, pName);
 }
+

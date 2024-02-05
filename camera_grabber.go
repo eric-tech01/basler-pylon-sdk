@@ -12,12 +12,13 @@ import (
 type grabber struct {
 	StreamNums   int //支持的stram数量
 	ghandle      C.PYLON_STREAMGRABBER_HANDLE
-	hwait        C.PYLON_WAITOBJECT_HANDLE
 	buffers      [][]uint8
 	NumBuffers   int
 	bufferHandle []C.PYLON_STREAMBUFFER_HANDLE
 
 	payloadSize int32
+
+	WaitObject WaitObject
 }
 
 func (camera Camera) NewGrabber() (grabber, error) {
@@ -55,11 +56,18 @@ func (g grabber) Open() error {
 	if C.GENAPI_E_OK != res {
 		return fmt.Errorf("%d", res)
 	}
-	res = C.CPylonStreamGrabberGetWaitObject(g.ghandle, &g.hwait)
-	if C.GENAPI_E_OK != res {
-		return fmt.Errorf("%d", res)
-	}
+
 	return nil
+}
+
+func (g *grabber) NewWaitObj() (WaitObject, error) {
+	wObject := WaitObject{}
+	res := C.CPylonStreamGrabberGetWaitObject(g.ghandle, &wObject.Hwait)
+	if C.GENAPI_E_OK != res {
+		return wObject, fmt.Errorf("%d", res)
+	}
+	g.WaitObject = wObject
+	return wObject, nil
 }
 
 func (g grabber) StopClose() error {
@@ -153,6 +161,34 @@ func (g grabber) StopStreamingIfMandatory() error {
 	/* Start the image acquisition engine. */
 	res := C.CPylonStreamGrabberStopStreamingIfMandatory(g.ghandle)
 	if C.GENAPI_E_OK != res {
+		return fmt.Errorf("%d", res)
+	}
+	return nil
+}
+
+func (g grabber) RetrieveResult() error {
+	var rslt C.PylonGrabResult_t
+	var isReady C._Bool
+	res := C.CPylonStreamGrabberRetrieveResult(g.ghandle, &rslt, &isReady)
+	if C.GENAPI_E_OK != res {
+		return fmt.Errorf("%d", res)
+	}
+	if !isReady {
+		return fmt.Errorf("retrieve failed")
+	}
+
+	pbufIndex := *(*uint32)(unsafe.Pointer(rslt.Context))
+
+	fmt.Println("bufferIndex:", pbufIndex)
+	if rslt.Status == 2 {
+		//save image
+		// printf( "Grabbed frame %2d into buffer %2d. Min. gray value = %3u, Max. gray value = %3u\n",
+		// nGrabs, (int) bufferIndex, min, max );、
+		fmt.Printf("Grabbed frame into buffer %2d. \n", pbufIndex)
+	}
+	res = C.CPylonStreamGrabberQueueBuffer(g.ghandle, rslt.hBuffer, unsafe.Pointer(&pbufIndex))
+	if C.GENAPI_E_OK != res {
+		C.CPrintError(res)
 		return fmt.Errorf("%d", res)
 	}
 	return nil

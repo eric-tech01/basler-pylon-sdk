@@ -7,18 +7,23 @@ import (
 )
 
 func main() {
-	fmt.Println("---===")
 	gopylon.PylonInitialize()
+	defer gopylon.PylonTerminate()
 
 	camera := &gopylon.Camera{SerialNumber: "ML230-40C"}
 	num := camera.FetchCamera()
 	fmt.Println("device nums: ", num)
 	camera.GetDeviceInfo()
 	fmt.Printf("%v \n", camera)
-	camera.Open()
+	if err := camera.Open(); err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer func() {
+		fmt.Println("defer xxx")
+		camera.StopAndClean()
 
-	// camera.GetIntegerFeatureInt32("PayloadSize", &camera.PayloadSize)
-	// fmt.Println("payloadSize: ", camera.PayloadSize)
+	}()
 
 	grabber, err := camera.NewGrabber()
 	if err != nil {
@@ -33,7 +38,14 @@ func main() {
 		fmt.Println("not support image streams")
 		return
 	}
+	defer grabber.StopClose()
 
+	waitObj, err := grabber.NewWaitObj()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	grabber.WaitObject = waitObj
 	grabber.GetPayloadSize(camera.HDev)
 	if err := grabber.SetMaxNumBuffer(); err != nil {
 		fmt.Printf("set max num buffer: %d \n", err)
@@ -75,23 +87,31 @@ func main() {
 	GrabNums := 0
 	for {
 
+		if err := waitObj.Wait(); err != nil {
+			fmt.Println(err)
+			break
+		}
 		if GrabNums > 10 {
 			break
 		}
 
+		if err := grabber.RetrieveResult(); err != nil {
+			fmt.Println(err)
+		}
+		GrabNums++
+
 	}
 	//stop all
+	if err := camera.ExecuteCommandFeature("AcquisitionStop"); err != nil {
+		fmt.Printf("AcquisitionStop: %d \n", err)
+		return
+	}
+
 	if err := grabber.StopStreamingIfMandatory(); err != nil {
 		fmt.Printf("StopStreamingIfMandatory: %d \n", err)
 		return
 	}
 
-	defer func() {
-		grabber.StopClose()
-		camera.StopAndClean()
-
-		gopylon.PylonTerminate()
-	}()
 }
 
 // 触发一次拍一个照片
