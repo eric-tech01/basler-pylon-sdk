@@ -12,7 +12,7 @@ type WaitObject struct {
 
 func (w WaitObject) Wait() error {
 	var isReady C._Bool
-	res := C.CPylonWaitObjectWait(w.Hwait, 100, &isReady)
+	res := C.CPylonWaitObjectWait(w.Hwait, 1000, &isReady)
 	if C.GENAPI_E_OK != res {
 		return fmt.Errorf("%d", res)
 	}

@@ -34,6 +34,7 @@ err:
 }
 
 
+
 GENAPIC_RESULT CPylonGetDeviceInfo(size_t index, PylonDeviceInfo_t* pDi)
 {
     return PylonGetDeviceInfo(index, pDi);
@@ -53,11 +54,6 @@ GENAPIC_RESULT CPylonDeviceOpen(PYLON_DEVICE_HANDLE hdev, int mode)
 GENAPIC_RESULT CPylonDeviceClose(PYLON_DEVICE_HANDLE hdev)
 {
     return PylonDeviceClose(hdev);
-}
-
-GENAPIC_RESULT CPylonDestroyDevice(PYLON_DEVICE_HANDLE hdev)
-{
-    return PylonDestroyDevice(hdev);
 }
 
 
@@ -135,4 +131,38 @@ GENAPIC_RESULT CPylonDeviceExecuteCommandFeature( PYLON_DEVICE_HANDLE hDev, cons
 {
     return PylonDeviceExecuteCommandFeature(hDev, pName);
 }
+
+
+
+
+
+/*
+* ----------------------------------------------------------------------------
+* Device creation / destruction
+* ----------------------------------------------------------------------------
+*/
+GENAPIC_RESULT CPylonCreateDeviceByIndex( size_t index, PYLON_DEVICE_HANDLE* phDev ){
+    return PylonCreateDeviceByIndex(index,phDev );
+}
+GENAPIC_RESULT CPylonDestroyDevice( PYLON_DEVICE_HANDLE hDev )
+{
+    return PylonDestroyDevice(hDev);
+
+}
+GENAPIC_RESULT CPylonIsDeviceAccessible( size_t index, int accessMode, _Bool* pIsAccessible )
+{
+    return PylonIsDeviceAccessible(index, accessMode, pIsAccessible );
+}
+
+
+
+/*
+* ----------------------------------------------------------------------------
+* Device enumeration
+* ----------------------------------------------------------------------------
+*/
+GENAPIC_RESULT  CPylonEnumerateDevices( size_t* numDevices ) {
+    return PylonEnumerateDevices(numDevices);
+}
+
 

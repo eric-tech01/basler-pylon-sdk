@@ -8,11 +8,23 @@ import (
 
 func main() {
 	gopylon.PylonInitialize()
-	defer gopylon.PylonTerminate()
+	defer func() {
+		fmt.Println("defer 1")
+		gopylon.PylonTerminate()
+	}()
 
-	camera := &gopylon.Camera{SerialNumber: "ML230-40C"}
-	num := camera.FetchCamera()
-	fmt.Println("device nums: ", num)
+	var cameras gopylon.Cameras
+	err := cameras.EnumerateDevices()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("cameras is : %v \n", cameras)
+	if len(cameras) == 0 {
+		fmt.Println("error camera nums")
+		return
+	}
+	camera := (cameras)[0]
 	camera.GetDeviceInfo()
 	fmt.Printf("%v \n", camera)
 	if err := camera.Open(); err != nil {
@@ -20,7 +32,7 @@ func main() {
 		return
 	}
 	defer func() {
-		fmt.Println("defer xxx")
+		fmt.Println("defer 222")
 		camera.StopAndClean()
 
 	}()

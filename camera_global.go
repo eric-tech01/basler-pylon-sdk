@@ -4,6 +4,7 @@ package gopylon
 #include "camera.h"
 */
 import "C"
+import "fmt"
 
 func PylonInitialize() {
 	C.CPylonInitialize()
@@ -11,6 +12,27 @@ func PylonInitialize() {
 
 func PylonTerminate() {
 	C.CPylonTerminate()
+}
+
+type Cameras []Camera
+
+func (cameras *Cameras) EnumerateDevices() error {
+	var num C.size_t
+	res := C.CPylonEnumerateDevices(&num)
+	if C.GENAPI_E_OK != res {
+		return fmt.Errorf("%d", res)
+	}
+	fmt.Printf("num is : %d \n", int(num))
+	for i := 0; i < int(num); i++ {
+		c := Camera{}
+		res := C.CPylonCreateDeviceByIndex(C.ulong(i), &c.HDev)
+		if C.GENAPI_E_OK != res {
+			C.CPrintError(res)
+			return fmt.Errorf("%d", res)
+		}
+		*cameras = append(*cameras, c)
+	}
+	return nil
 }
 
 // char* errMsg;
