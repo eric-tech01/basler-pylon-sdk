@@ -130,3 +130,7 @@ func main() {
 func TriggerCapture() {
 
 }
+
+func StopAndClean() {
+
+}

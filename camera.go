@@ -9,9 +9,8 @@ import (
 )
 
 type Camera struct {
-	index  int
-	HDev   C.PYLON_DEVICE_HANDLE
-	IsOpen bool //相机是否打开
+	index int
+	HDev  C.PYLON_DEVICE_HANDLE
 
 	ModelName       string
 	FullName        string
@@ -58,7 +57,7 @@ func (camera *Camera) GetDeviceInfo() {
 }
 
 func (camera Camera) Open() error {
-	if camera.IsOpen {
+	if isOpen := camera.IsOpen(); isOpen {
 		camera.Close()
 	}
 	res := C.CPylonDeviceOpen(camera.HDev, C.PYLONC_ACCESS_MODE_CONTROL|C.PYLONC_ACCESS_MODE_STREAM)
@@ -69,6 +68,14 @@ func (camera Camera) Open() error {
 	return nil
 }
 
+func (camera Camera) IsOpen() bool {
+	var isOpen C._Bool
+	res := C.CPylonDeviceIsOpen(camera.HDev, &isOpen)
+	if C.GENAPI_E_OK != res {
+		return false
+	}
+	return bool(isOpen)
+}
 func (camera Camera) StopAndClean() {
 	camera.Close()
 	camera.Destroy()

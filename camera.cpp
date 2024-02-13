@@ -56,7 +56,11 @@ GENAPIC_RESULT CPylonDeviceClose(PYLON_DEVICE_HANDLE hdev)
     return PylonDeviceClose(hdev);
 }
 
+GENAPIC_RESULT CPylonDeviceIsOpen( PYLON_DEVICE_HANDLE hdev, _Bool* pOpen )
+{
+    return CPylonDeviceIsOpen(hdev, pOpen);
 
+}
 
 _Bool CPylonDeviceFeatureIsReadable(PYLON_DEVICE_HANDLE hdev,const char *prop)
 {

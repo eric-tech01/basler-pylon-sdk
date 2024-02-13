@@ -21,8 +21,8 @@ type grabber struct {
 	WaitObject WaitObject
 }
 
-func (camera Camera) NewGrabber() (grabber, error) {
-	var g grabber
+func (camera Camera) NewGrabber() (*grabber, error) {
+	g := &grabber{}
 	var ghandle C.PYLON_STREAMGRABBER_HANDLE
 
 	n, err := camera.PylonDeviceGetNumStreamGrabberChannels()
