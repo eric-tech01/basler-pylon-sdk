@@ -24,8 +24,9 @@ func (cameras *Cameras) EnumerateDevices() error {
 	}
 	fmt.Printf("num is : %d \n", int(num))
 	for i := 0; i < int(num); i++ {
-		c := Camera{}
-		res := C.CPylonCreateDeviceByIndex(C.ulong(i), &c.HDev)
+		c := Camera{index: i}
+		c.GetDeviceInfo()
+		res := C.CPylonCreateDeviceByIndex(C.ulong(c.index), &(c.HDev))
 		if C.GENAPI_E_OK != res {
 			C.CPrintError(res)
 			return fmt.Errorf("%d", res)
