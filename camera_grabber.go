@@ -36,7 +36,7 @@ func (camera Camera) NewGrabber() (*grabber, error) {
 
 	g.StreamNums = n
 	g.ghandle = ghandle
-	g.NumBuffers = 128
+	g.NumBuffers = 5
 	for i := 0; i < g.NumBuffers; i++ {
 		buf := make([]uint8, g.payloadSize)
 		g.buffers = append(g.buffers, buf)
@@ -118,6 +118,17 @@ func (g grabber) RegisterBuffer() error {
 	return nil
 }
 
+func (g grabber) DeRegisterBuffer() error {
+	fmt.Println("de register buffer")
+	for i := 0; i < g.NumBuffers; i++ {
+		res := C.CPylonStreamGrabberDeregisterBuffer(g.ghandle, g.bufferHandle[i])
+		if C.GENAPI_E_OK != res {
+			return fmt.Errorf("%d", res)
+		}
+	}
+	return nil
+}
+
 /*
 * Feed the buffers into the stream grabber's input queue. For each buffer, the API
 * allows passing in a pointer to additional context information. This pointer
@@ -166,30 +177,57 @@ func (g grabber) StopStreamingIfMandatory() error {
 	return nil
 }
 
-func (g grabber) RetrieveResult() error {
+func (g grabber) RetrieveResult() (C.PylonGrabResult_t, error) {
 	var rslt C.PylonGrabResult_t
 	var isReady C._Bool
 	res := C.CPylonStreamGrabberRetrieveResult(g.ghandle, &rslt, &isReady)
 	if C.GENAPI_E_OK != res {
-		return fmt.Errorf("%d", res)
+		return rslt, fmt.Errorf("%d", res)
 	}
 	if !isReady {
-		return fmt.Errorf("retrieve failed")
+		return rslt, fmt.Errorf("retrieve failed")
 	}
 
-	pbufIndex := *(*uint32)(unsafe.Pointer(rslt.Context))
+	bufferIndex := *(*uint32)(unsafe.Pointer(rslt.Context))
 
-	fmt.Println("bufferIndex:", pbufIndex)
-	if rslt.Status == 2 {
+	fmt.Println("bufferIndex:", bufferIndex)
+
+	switch rslt.Status {
+	case C.Idle:
+	case C.Queued:
+	case C.Grabbed:
+		fmt.Printf("Grabbed frame into buffer %2d. sizeX: %d. sizeY: %d \n", bufferIndex, rslt.SizeX, rslt.SizeY)
 		//save image
-		// printf( "Grabbed frame %2d into buffer %2d. Min. gray value = %3u, Max. gray value = %3u\n",
-		// nGrabs, (int) bufferIndex, min, max );、
-		fmt.Printf("Grabbed frame into buffer %2d. \n", pbufIndex)
+	case C.Canceled:
+	case C.Failed:
+
+	default:
 	}
-	res = C.CPylonStreamGrabberQueueBuffer(g.ghandle, rslt.hBuffer, unsafe.Pointer(&pbufIndex))
+
+	res = C.CPylonStreamGrabberQueueBuffer(g.ghandle, rslt.hBuffer, unsafe.Pointer(&bufferIndex))
+	if C.GENAPI_E_OK != res {
+		C.CPrintError(res)
+		return rslt, fmt.Errorf("%d", res)
+	}
+	return rslt, nil
+}
+
+func (g grabber) FlushBuffersToOutput() error {
+	res := C.CPylonStreamGrabberFlushBuffersToOutput(g.ghandle)
 	if C.GENAPI_E_OK != res {
 		C.CPrintError(res)
 		return fmt.Errorf("%d", res)
 	}
 	return nil
+}
+
+func (g grabber) JustRetrieveResult() (C.PylonGrabResult_t, error, bool) {
+	var rslt C.PylonGrabResult_t
+	var isReady C._Bool
+	res := C.CPylonStreamGrabberRetrieveResult(g.ghandle, &rslt, &isReady)
+	if C.GENAPI_E_OK != res {
+		C.CPrintError(res)
+		return rslt, fmt.Errorf("%d", res), bool(isReady)
+	}
+	return rslt, nil, bool(isReady)
 }

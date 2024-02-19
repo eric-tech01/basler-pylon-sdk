@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	gopylon "github.com/eric-tech01/gopylon"
+
+	"gocv.io/x/gocv"
 )
 
 func main() {
 	gopylon.PylonInitialize()
 	defer func() {
-		fmt.Println("defer 1")
+		fmt.Println("sdk terminate")
 		gopylon.PylonTerminate()
 	}()
 
@@ -25,16 +27,15 @@ func main() {
 		return
 	}
 	camera := (cameras)[0]
-	camera.GetDeviceInfo()
+	// camera.GetDeviceInfo()
 	fmt.Printf("%v \n", camera)
 	if err := camera.Open(); err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer func() {
-		fmt.Println("defer 222")
+		fmt.Println("camera close")
 		camera.StopAndClean()
-
 	}()
 
 	grabber, err := camera.NewGrabber()
@@ -50,7 +51,10 @@ func main() {
 		fmt.Println("not support image streams")
 		return
 	}
-	defer grabber.StopClose()
+	defer func() {
+		fmt.Println("stream grabber close")
+		grabber.StopClose()
+	}()
 
 	waitObj, err := grabber.NewWaitObj()
 	if err != nil {
@@ -79,6 +83,8 @@ func main() {
 		fmt.Printf("RegisterBuffer: %d \n", err)
 		return
 	}
+	defer grabber.DeRegisterBuffer()
+
 	if err := grabber.QueueBuffer(); err != nil {
 		fmt.Printf("QueueBuffer: %d \n", err)
 		return
@@ -96,34 +102,51 @@ func main() {
 		return
 	}
 
+	defer func() {
+		fmt.Println("acqui stop")
+		//stop all
+		if err := camera.ExecuteCommandFeature("AcquisitionStop"); err != nil {
+			fmt.Printf("AcquisitionStop: %d \n", err)
+			return
+		}
+
+		if err := grabber.StopStreamingIfMandatory(); err != nil {
+			fmt.Printf("StopStreamingIfMandatory: %d \n", err)
+			return
+		}
+
+		if err := grabber.FlushBuffersToOutput(); err != nil {
+			fmt.Printf("StopStreamingIfMandatory: %d \n", err)
+			return
+		}
+		//do retrieve buffer
+		for {
+			if _, err, isReady := grabber.JustRetrieveResult(); err != nil || !isReady {
+				fmt.Println(err)
+				fmt.Println("isReady:", isReady)
+				break
+			}
+		}
+
+	}()
+
 	GrabNums := 0
 	for {
-
+		GrabNums++
 		if err := waitObj.Wait(); err != nil {
 			fmt.Println(err)
 			break
 		}
-		if GrabNums > 10 {
+		if GrabNums > 50 {
 			break
 		}
 
-		if err := grabber.RetrieveResult(); err != nil {
+		if rslt, err := grabber.RetrieveResult(); err != nil {
 			fmt.Println(err)
+		} else {
+			gocv.NewMatFromBytes(rslt.SizeX, rslt.SizeY, gocv.MatTypeCV8UC3, rslt.pBuffer)
 		}
-		GrabNums++
-
 	}
-	//stop all
-	if err := camera.ExecuteCommandFeature("AcquisitionStop"); err != nil {
-		fmt.Printf("AcquisitionStop: %d \n", err)
-		return
-	}
-
-	if err := grabber.StopStreamingIfMandatory(); err != nil {
-		fmt.Printf("StopStreamingIfMandatory: %d \n", err)
-		return
-	}
-
 }
 
 // 触发一次拍一个照片
